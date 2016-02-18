@@ -13,3 +13,16 @@ Note: If the admin user id is different than "admin", make necessary changes in 
 ```
 ./HDP_Cluster_Operations.sh
 ```
+
+```
+Number of Running Applications are :  0
+AMBARI_METRICS FLUME HBASE HDFS HIVE MAPREDUCE2 OOZIE PIG SPARK SQOOP TEZ YARN ZOOKEEPER
+Choose STOP/START HDP Services Using Ambari REST API
+1) STOP
+2) START
+#?
+```
+
+Option#1 Will Stop all the services one after one
+
+Option#2 Will Start all the services one after one
