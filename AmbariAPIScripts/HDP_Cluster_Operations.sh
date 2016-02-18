@@ -2,9 +2,15 @@
 #!/bin/bash
  
 AMBARI_ADMIN_PASSWORD=admin
+<<<<<<< HEAD
 AMBARI_SERVER=had-master1
 CLUSTER_NAME=SVCHDPPOC
 RM_SERVER=had-master3 
+=======
+AMBARI_SERVER=<FQDN OF Ambari Server Host>
+CLUSTER_NAME=<Cluster Name from Ambari GUI>
+ 
+>>>>>>> e578ec878190e8a54625f8d4edba91e9c00407b0
  
 function wait(){
  
