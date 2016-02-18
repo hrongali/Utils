@@ -4,7 +4,7 @@
 AMBARI_ADMIN_PASSWORD=admin
 AMBARI_SERVER=had-master1
 CLUSTER_NAME=SVCHDPPOC
- 
+RM_SERVER=had-master3 
  
 function wait(){
  
@@ -98,7 +98,7 @@ function start_services() {
  
 }
  
-RUNNING_APPS=`GET http://$AMBARI_SERVER:8088/ws/v1/cluster/appstatistics?states=running | cut -d, -f 3 | cut -d: -f 2 | sed s/}]}}//g`
+RUNNING_APPS=`GET http://$RM_SERVER:8088/ws/v1/cluster/appstatistics?states=running | cut -d, -f 3 | cut -d: -f 2 | sed s/}]}}//g`
 echo "Number of Running Applications are : " $RUNNING_APPS
 services=`curl -u admin:$AMBARI_ADMIN_PASSWORD -X GET http://$AMBARI_SERVER:8080/api/v1/clusters/$CLUSTER_NAME/services | grep service_name | cut -d: -f 2 | sed s/\"//g`
 echo $services
