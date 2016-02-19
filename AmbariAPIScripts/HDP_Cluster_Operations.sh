@@ -20,6 +20,7 @@ do
                 finished=1
         fi
         sleep 3
+	echo $1 " Starting..."
 done
  
 }
