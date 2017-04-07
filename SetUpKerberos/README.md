@@ -3,8 +3,12 @@
 on all hosts:
 
 yum install ntp -y
+
 service ntpd start
+
 chkconfig ntpd on
+
+
 
 On the m1.hdp.com host:
 
@@ -13,6 +17,7 @@ On the m1.hdp.com host:
 yum install krb5-server krb5-libs krb5-workstation
 
 Edit the krb5.conf with the settings below for the HDP.COM realm
+
 vi /etc/krb5.conf
 
 [logging]
