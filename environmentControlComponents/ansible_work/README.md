@@ -5,9 +5,11 @@ The installation should be performed on x1 host
 To install Ansible, we need EPEL package(Extra Packages for Enterprise Linux) which will not be available with default Linux Install.
 
 
-### Install wget:
-
+### Install wget & git:
+````
 yum install wget -y
+yum install git -y
+````
 
 ### Install instructions for EPEL 
 ````
