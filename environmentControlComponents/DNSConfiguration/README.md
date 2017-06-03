@@ -1,2 +1,222 @@
-# Utils
-Various helpful utilities
+# DNS Server configuration
+
+[Instructions for Configuring DNS Server and Client](https://www.unixmen.com/dns-server-installation-step-by-step-using-centos-6-3/)
+
+**For convinieince sake, we are just configuring Promary DNS and clients**
+
+### Setup Primary(Master) DNS Server
+
+````
+yum install bind* -y
+
+````
+
+*** Make changes to /etc/named.conf like below ***
+````
+[root@x1 ansible]# cat /etc/named.conf
+//
+// named.conf
+//
+// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
+// server as a caching only nameserver (as a localhost DNS resolver only).
+//
+// See /usr/share/doc/bind*/sample/ for example named configuration files.
+//
+
+options {
+	listen-on port 53 { 127.0.0.1; 192.168.1.145; };
+	listen-on-v6 port 53 { ::1; };
+	directory 	"/var/named";
+	dump-file 	"/var/named/data/cache_dump.db";
+        statistics-file "/var/named/data/named_stats.txt";
+        memstatistics-file "/var/named/data/named_mem_stats.txt";
+	allow-query     { localhost; 192.168.1.0/24; };
+	recursion yes;
+
+	dnssec-enable yes;
+	dnssec-validation yes;
+
+	/* Path to ISC DLV key */
+	bindkeys-file "/etc/named.iscdlv.key";
+
+	managed-keys-directory "/var/named/dynamic";
+};
+
+logging {
+        channel default_debug {
+                file "data/named.run";
+                severity dynamic;
+        };
+};
+
+zone "." IN {
+	type hint;
+	file "named.ca";
+};
+zone"hdp.com" IN {
+type master;
+file "forward.hdp";
+allow-update { none; };
+};
+zone"1.168.192.in-addr.arpa" IN {
+type master;
+file "reverse.hdp";
+allow-update { none; };
+};
+include "/etc/named.rfc1912.zones";
+include "/etc/named.root.key";
+
+````
+
+*** Create Zone files /var/named/forward.hdp and /var/named/reverse.hdp ***
+
+````
+[root@x1 ansible]# cat /var/named/forward.hdp
+$TTL 86400
+@   IN  SOA     x1.hdp.com. root.hdp.com. (
+        2011071001  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          x1.hdp.com.
+@       IN  A           192.168.1.140
+@       IN  A           192.168.1.141
+@       IN  A           192.168.1.142
+@       IN  A           192.168.1.143
+@       IN  A           192.168.1.144
+@       IN  A           192.168.1.145
+x1       IN  A   192.168.1.145
+m1	IN  A   192.168.1.140
+m2      IN  A   192.168.1.141
+m3      IN  A   192.168.1.142
+n1      IN  A   192.168.1.143
+n2      IN  A   192.168.1.144
+[root@x1 ansible]# cat /var/named/reverse.hdp
+$TTL 86400
+@   IN  SOA     x1.hdp.com. root.hdp.com. (
+        2011071001  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          x1.hdp.com.
+@       IN  PTR         hdp.com.
+x1       IN  A   192.168.1.145
+m1          IN  A   192.168.1.140
+m2          IN  A   192.168.1.141
+m3          IN  A   192.168.1.142
+n1          IN  A   192.168.1.143
+n2          IN  A   192.168.1.144
+140     IN  PTR         m1.hdp.com.
+141     IN  PTR         m2.hdp.com.
+142     IN  PTR         m3.hdp.com.
+143     IN  PTR         n1.hdp.com.
+144     IN  PTR         n2.hdp.com.
+145     IN  PTR         x1.hdp.com.
+````
+
+#### Start the DNS service and chkconfig it
+````
+
+[root@x1 ansible]# service named start
+Generating /etc/rndc.key:                                  [  OK  ]
+Starting named:                                            [  OK  ]
+[root@x1 ansible]# chkconfig named on
+[root@x1 ansible]# chkconfig named on
+````
+
+#### Make changes to iptables to accept connections on port 53
+````
+[root@x1 ansible]# cat /etc/sysconfig/iptables
+# Firewall configuration written by system-config-firewall
+# Manual customization of this file is not recommended.
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -p udp -m state --state NEW --dport 53 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW --dport 53 -j ACCEPT
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
+````
+
+#### Restart iptables
+````
+[root@x1 ansible]# service iptables restart
+iptables: Setting chains to policy ACCEPT: filter          [  OK  ]
+iptables: Flushing firewall rules:                         [  OK  ]
+iptables: Unloading modules:                               [  OK  ]
+iptables: Applying firewall rules:                         [  OK  ]
+````
+
+#### Check the named.conf file and the forward& reverse zone files
+````
+[root@x1 ansible]# named-checkconf /etc/named.conf
+[root@x1 ansible]# named-checkzone hdp.com /var/named/forward.hdp
+zone hdp.com/IN: loaded serial 2011071001
+OK
+[root@x1 ansible]# named-checkzone hdp.com /var/named/reverse.hdp
+zone hdp.com/IN: loaded serial 2011071001
+OK
+````
+
+#### Make changes to the /etc/resolv.conf. Add the DNS Master IP after the search hdp.com
+````
+[root@x1 ansible]# cat /etc/resolv.conf
+; generated by /sbin/dhclient-script
+search hdp.com
+nameserver 192.168.1.145
+nameserver 192.168.1.1
+````
+
+### Now, try some nslookup and dig commands
+
+````
+[root@x1 ansible]# nslookup m1.hdp.com
+Server:		192.168.1.145
+Address:	192.168.1.145#53
+
+Name:	m1.hdp.com
+Address: 192.168.1.140
+
+[root@x1 ansible]# nslookup 192.168.1.141
+Server:		192.168.1.145
+Address:	192.168.1.145#53
+
+141.1.168.192.in-addr.arpa	name = m2.hdp.com.
+
+[root@x1 ansible]# dig m1.hdp.com
+
+; <<>> DiG 9.8.2rc1-RedHat-9.8.2-0.62.rc1.el6_9.2 <<>> m1.hdp.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 48066
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 1
+
+;; QUESTION SECTION:
+;m1.hdp.com.			IN	A
+
+;; ANSWER SECTION:
+m1.hdp.com.		86400	IN	A	192.168.1.140
+
+;; AUTHORITY SECTION:
+hdp.com.		86400	IN	NS	x1.hdp.com.
+
+;; ADDITIONAL SECTION:
+x1.hdp.com.		86400	IN	A	192.168.1.145
+
+;; Query time: 0 msec
+;; SERVER: 192.168.1.145#53(192.168.1.145)
+;; WHEN: Sat Jun  3 11:22:10 2017
+;; MSG SIZE  rcvd: 77
+````
+
+#### Thats is. DNS Server is all set up!!!
