@@ -43,3 +43,39 @@ ansible.noarch : SSH-based configuration management, deployment, and task execut
  yum install ansible -y
 ```
 
+### Make a directory for ansible stuff
+
+````
+cd ~
+mkdir ansible
+cd ansible
+````
+
+
+## Passwordless SSH set up
+
+````
+[root@x1 ansible]# ssh-keygen -t rsa
+
+---
+---
+Your identification has been saved in loginkey.
+Your public key has been saved in loginkey.pub.
+````
+
+### On every host Distribute the public key (####.pub) from ansible host to the authorized_keys file of the ~/.ssh directory of the target host
+
+````
+cd ~/.ssh
+touch authorized_keys
+vi authorized_keys
+Paste the public key in the file, quit and save
+````
+
+### Try logging to all the hosts from ansible host(x1) using the below command:
+
+````
+ssh -i loginkey root@m1
+````
+
+## Take a break here and Set up DNS. Resume after DNS is setup.
