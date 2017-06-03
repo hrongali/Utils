@@ -79,3 +79,47 @@ ssh -i loginkey root@m1
 ````
 
 ## Take a break here and Set up DNS. Resume after DNS is setup.
+
+
+# Ansible working environment setup
+````
+[root@x1 ansible]# cd ~/ansible/
+[root@x1 ansible]# pwd
+/root/ansible
+[root@x1 ansible]# ll
+total 16
+-rw-r--r--. 1 root root   31 Jun  3 11:41 ansible.cfg
+-rw-r--r--. 1 root root  124 Jun  3 11:39 hosts
+-rw-------. 1 root root 1675 Jun  3 08:56 loginkey
+-rw-r--r--. 1 root root  397 Jun  3 08:56 loginkey.pub
+[root@x1 ansible]# cat hosts
+[mseries]
+m1.hdp.com
+m2.hdp.com
+m3.hdp.com
+
+[nseries]
+n1.hdp.com
+n2.hdp.com
+
+[control]
+x1.hdp.com ansible_connection=local
+
+[root@x1 ansible]# cat ansible.cfg
+[defaults]
+inventory = ./hosts
+private_key_file = /root/ansible/loginkey
+
+````
+
+#### Check if we are able to list all the hosts using ansible command without passing the hosts file
+````
+[root@x1 ansible]# ansible --list-hosts all
+  hosts (6):
+    x1.hdp.com
+    m1.hdp.com
+    m2.hdp.com
+    m3.hdp.com
+    n1.hdp.com
+    n2.hdp.com
+````
