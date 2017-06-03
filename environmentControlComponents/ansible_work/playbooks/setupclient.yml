@@ -1,0 +1,7 @@
+---
+   - hosts: all
+     tasks:
+        - name: Install mandatory packages
+          yum: pkg={{item}} state=installed
+          with_items:
+             - git
