@@ -1,0 +1,9 @@
+---
+   - hosts: mseries
+     tasks:
+        - name: Shutdown all mseries servers
+          command: shutdown -P now
+   - hosts: nseries
+     tasks:
+        - name: Shutdown all nseries servers
+          command: shutdown -P now

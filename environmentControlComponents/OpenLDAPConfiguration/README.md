@@ -1,0 +1,2 @@
+# OpenLDAP Server - Client configuration
+
