@@ -5,3 +5,5 @@
           yum: pkg={{item}} state=installed
           with_items:
              - git
+             - mlocate
+             - ntp
