@@ -207,3 +207,43 @@ COMMIT
 [root@x1 openldap]# iptables --flush
 
 ```
+
+
+### Add a user to LDAP
+```
+# generate encrypted password
+[root@x1 openldap]# slappasswd
+New password:
+Re-enter new password:
+{SSHA}xxxxxxxxxxxxxxxxx
+
+[root@x1 openldap]# vi ldapuser.ldif
+
+# create new
+# replace to your own domain name for "dc=***,dc=***" section
+dn: uid=hdpuser,ou=People,dc=hdp,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Hdpuser
+sn: Linux
+userPassword: {SSHA}xxxxxxxxxxxxxxxxxxxxxxxxxxx
+loginShell: /bin/bash
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/hdpuser
+
+dn: cn=hdpuser,ou=Group,dc=hdp,dc=com
+objectClass: posixGroup
+cn: Hdpuser
+gidNumber: 1000
+memberUid: hdpuser
+```
+
+### Setting up LDAP clients. On all boxes
+```
+[root@www ~]# yum -y install openldap-clients nss-pam-ldapd
+```
+[Equivalent Ansible playbook is ](https://github.com/hrongali/Utils/blob/master/environmentControlComponents/ansible_work/playbooks/setupclient.yml)
+
+
