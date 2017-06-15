@@ -7,3 +7,17 @@
              - git
              - mlocate
              - ntp
+             - openldap-clients
+             - nss-pam-ldapd
+             - bind-utils
+             - libselinux-python
+
+        - name: Configure DNS Clients
+          lineinfile:
+             path: /etc/resolv.conf
+             insertbefore: '^nameserver 192.168.1.1'
+             line: 'nameserver 192.168.1.145'
+             state: present
+
+        - name: Setup OpenLDAP Clients
+          command: authconfig --enableldap --enableldapauth --ldapserver=x1.hdp.com --ldapbasedn="dc=hdp,dc=com" --enablemkhomedir --update

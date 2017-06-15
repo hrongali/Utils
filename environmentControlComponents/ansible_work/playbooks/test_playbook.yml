@@ -3,3 +3,6 @@
      tasks:
         - name: Get the Server name
           command: hostname
+
+        - name: cat the /etc/passwd file
+          command: cat /etc/passwd
