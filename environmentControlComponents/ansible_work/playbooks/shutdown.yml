@@ -7,3 +7,7 @@
      tasks:
         - name: Shutdown all nseries servers
           command: shutdown -P now
+   - hosts: control
+     tasks:
+        - name: Shutdown x server
+          command: shutdown -P now 
