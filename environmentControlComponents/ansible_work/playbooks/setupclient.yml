@@ -12,13 +12,92 @@
              - bind-utils
              - libselinux-python
              - wget
-
-        - name: Configure DNS Clients
-          lineinfile:
-             path: /etc/resolv.conf
-             insertbefore: '^nameserver 192.168.1.1'
-             line: 'nameserver 192.168.1.145'
-             state: present
+             - vim
+             - telnet
+        - name: Copy resolv.conf from x1 host to remote servers
+          copy:
+             src: /etc/resolv.conf
+             dest: /etc/resolv.conf
 
         - name: Setup OpenLDAP Clients
           command: authconfig --enableldap --enableldapauth --ldapserver=x1.hdp.com --ldapbasedn="dc=hdp,dc=com" --enablemkhomedir --update
+
+
+   - hosts: control
+     tasks:
+        - name: Install Salt Master on x1 node
+          yum: pkg={{item}} state=installed
+          with_items:
+             - salt
+             - salt-master
+             - salt-minion
+        - name: Replace Salt Master in the Salt config file
+          lineinfile:
+             dest: /etc/salt/minion
+             regexp: '^#master: salt'
+             line: 'master: x1.hdp.com'
+             backrefs: yes
+        - name: Start the Salt Master
+          service:
+             name: salt-master
+             state: started
+        - name: Start the Salt Minion
+          service:
+             name: salt-minion
+             state: started
+
+   - hosts: mseries
+     tasks:
+        - name: Copy EPEL RPM from x1 host to remote mseries servers
+          copy:
+             src: /root/epel-release-6-8.noarch.rpm
+             dest: /tmp/epel-release-6-8.noarch.rpm
+
+        - name: Install EPEL Package
+          yum:
+             name: /tmp/epel-release-6-8.noarch.rpm
+             state: present
+
+        - name: Install Salt Master on mseries node
+          yum: pkg={{item}} state=installed
+          with_items:
+             - salt
+             - salt-minion
+        - name: Replace Salt Master in the Salt config file
+          lineinfile:
+             dest: /etc/salt/minion
+             regexp: '^#master: salt'
+             line: 'master: x1.hdp.com'
+             backrefs: yes
+        - name: Start the Salt Minion
+          service:
+             name: salt-minion
+             state: started
+
+   - hosts: nseries
+     tasks:
+        - name: Copy EPEL RPM from x1 host to remote mseries servers
+          copy:
+             src: /root/epel-release-6-8.noarch.rpm
+             dest: /tmp/epel-release-6-8.noarch.rpm
+
+        - name: Install EPEL Package
+          yum:
+             name: /tmp/epel-release-6-8.noarch.rpm
+             state: present
+
+        - name: Install Salt Master on nseries node
+          yum: pkg={{item}} state=installed
+          with_items:
+             - salt
+             - salt-minion
+        - name: Replace Salt Master in the Salt config file
+          lineinfile:
+             dest: /etc/salt/minion
+             regexp: '^#master: salt'
+             line: 'master: x1.hdp.com'
+             backrefs: yes
+        - name: Start the Salt Minion
+          service:
+             name: salt-minion
+             state: started
