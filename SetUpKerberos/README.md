@@ -59,6 +59,10 @@ Check the entropy:
 [root@m1 ~]# cat /proc/sys/kernel/random/entropy_avail
 2500
 
+
+
+If you have used Ansible play book to trigger Kerberos install, you need to so the manual step from the below step onwards.
+
 Install thre KDC
 kdb5_util create -s
 (pwd  0s)
@@ -82,6 +86,7 @@ vi /var/kerberos/krb5kdc/kadm5.acl
 Restart the kadmin:
 /etc/rc.d/init.d/kadmin restart
 
+Manual process ends here in case if you are using Ansible playbook.
 
 Installing Kerberos clients:
 
