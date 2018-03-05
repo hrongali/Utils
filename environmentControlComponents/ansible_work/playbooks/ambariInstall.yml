@@ -1,0 +1,14 @@
+---
+- hosts: mseries:nseries
+
+  tasks:
+  - name: Stop iptables
+    service: 
+       name=iptables
+       state=stopped
+
+- hosts: m1.hdp.com
+  vars:
+     ambari_repo_base_url: http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.5.1.0
+     ambari_repo_file_url: http://public-repo-1.hortonworks.com/ambari/centos6/2.x/updates/2.5.1.0/ambari.repo
+     hdp_repo:

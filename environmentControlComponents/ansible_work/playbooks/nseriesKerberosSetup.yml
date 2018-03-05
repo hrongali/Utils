@@ -1,0 +1,67 @@
+---
+   - hosts: n1.hdp.com
+     vars:
+       kdc_host_n: n1.hdp.com
+       kdc_realm_n: hdf.com     
+ 
+     tasks:
+     - name: Install mandatory packages
+       yum: pkg={{item}} state=installed
+       with_items:
+          - krb5-server
+          - krb5-libs
+          - krb5-workstation
+          - haveged
+
+     - name: Set up entropy-1
+       command: haveged -w 1024
+
+     - name: Set up entropy-2
+       command: echo "/usr/local/sbin/haveged -w 1024" >> /etc/rc.local
+
+     - name: Check the Entropy
+       command: cat /proc/sys/kernel/random/entropy_avail
+
+     - name: Setup /etc/krb5.conf file for kerberos RULE-1
+       replace:
+          path: /etc/krb5.conf
+          regexp: 'EXAMPLE.COM'
+          replace: 'HDF.COM'
+     - name: Rule-2
+       replace:
+          path: /etc/krb5.conf
+          regexp: 'kerberos.example.com'
+          replace: "{{ kdc_host_n }}"
+     - name: Rule-3
+       replace:
+          path: /etc/krb5.conf
+          regexp: 'example.com'
+          replace: "{{ kdc_realm_n }}"
+
+
+   - hosts: nseries
+     vars:
+       kdc_host_n: n1.hdp.com
+       kdc_realm_n: hdf.com
+
+     tasks:
+     - name: Install mandatory packages
+       yum: pkg={{item}} state=installed
+       with_items:
+          - krb5-workstation
+          
+     - name: Setup /etc/krb5.conf file for kerberos RULE-1
+       replace:
+          path: /etc/krb5.conf
+          regexp: 'EXAMPLE.COM'
+          replace: 'HDF.COM'
+     - name: Rule-2
+       replace:
+          path: /etc/krb5.conf
+          regexp: 'kerberos.example.com'
+          replace: "{{ kdc_host_n }}"
+     - name: Rule-3
+       replace:
+          path: /etc/krb5.conf
+          regexp: 'example.com'
+          replace: "{{ kdc_realm_n }}"

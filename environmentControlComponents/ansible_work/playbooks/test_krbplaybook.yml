@@ -1,0 +1,22 @@
+---
+   - hosts: control
+     vars:
+        kdc_host: n1.hdp.com
+        kdc_realm: hdf.com
+
+     tasks:
+     - name: Setup /etc/krb5.conf file for kerberos RULE-1
+       replace:
+          path: /tmp/tmpkrb5.conf
+          regexp: 'EXAMPLE.COM'
+          replace: 'HDF.COM'
+     - name: Rule-2
+       replace:
+          path: /tmp/tmpkrb5.conf
+          regexp: 'kerberos.example.com'
+          replace: "{{ kdc_host }}"
+     - name: Rule-3
+       replace:
+          path: /tmp/tmpkrb5.conf
+          regexp: 'example.com'
+          replace: "{{ kdc_realm }}"

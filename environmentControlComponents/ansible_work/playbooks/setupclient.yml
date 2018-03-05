@@ -14,6 +14,7 @@
              - wget
              - vim
              - telnet
+             - unzip
         - name: Copy resolv.conf from x1 host to remote servers
           copy:
              src: /etc/resolv.conf
@@ -21,10 +22,19 @@
 
         - name: Setup OpenLDAP Clients
           command: authconfig --enableldap --enableldapauth --ldapserver=x1.hdp.com --ldapbasedn="dc=hdp,dc=com" --enablemkhomedir --update
-
+        
+        - name: Mandatory Services to be running
+          service:
+             name: ntpd
+             state: started
 
    - hosts: control
      tasks:
+        - name: Install EPEL Package
+          yum:
+             name: /root/epel-release-6-8.noarch.rpm
+             state: present
+
         - name: Install Salt Master on x1 node
           yum: pkg={{item}} state=installed
           with_items:
