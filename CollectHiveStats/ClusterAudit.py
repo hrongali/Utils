@@ -189,7 +189,7 @@ outputFileName = outputDirName+CLUSTER_NAME+"-ClusterAudit"+"-"+timestr+".json"
 outputFile = open(outputFileName,"w")
 outputFile.write(a)
 outputFile.close()
-msg = "Please email the file "+outputFileName+" to hrongali@hortonworks.com."
+msg = "Please email the file "+outputFileName+" to <email address>."
 print (msg)
 
 # curl -v -X GET  http://127.0.0.1:8088/ws/v1/cluster/apps | python -m json.tool
