@@ -247,3 +247,18 @@ memberUid: hdpuser
 [Equivalent Ansible playbook is ](https://github.com/hrongali/Utils/blob/master/environmentControlComponents/ansible_work/playbooks/setupclient.yml)
 
 
+```
+Generate SSL Server certificate:
+
+https://www.server-world.info/en/note?os=CentOS_6&p=ldap&f=3
+
+
+Configure OpenLDAP Server for SSL:
+https://www.server-world.info/en/note?os=CentOS_7&p=ssl
+
+
+Configure OpenLDAP Client for SSSD:
+
+https://kifarunix.com/configure-openldap-sssd-client-on-centos-6-7/
+
+```
